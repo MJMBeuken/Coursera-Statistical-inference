@@ -1,0 +1,103 @@
+---
+title: 'Statistical inference assignment: part 2'
+author: "MJM Beuken"
+date: "5 november 2017"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+# Load the ToothGrowth data and perform some basic exploratory data analyses.
+
+```{r}
+## load packages and ToothGrowth dataset.
+library(datasets)
+library(ggplot2)
+str(ToothGrowth)
+
+data <- ToothGrowth
+```
+
+# Provide a basic summary of the data.
+
+```{r}
+summary(data)
+
+## explore data with boxplots
+
+levels(data$supp) <- c("Orange Juice", "Vitamin C")
+g <- ggplot(data, aes(x = factor(dose), y = len))+
+                facet_grid(.~supp)+
+                geom_boxplot(aes(fill = supp))+
+                labs(title = "Tooth Length by Supplement")+
+                labs(x = "Dose (mg/day)", y = "Tooth Length (mm)")+
+                theme(plot.title = element_text(hjust = 0.5))
+print(g)
+```
+
+# Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering).
+
+## Checking if data Toothgrowth follows a Normal distribution before using the t-distribution.
+
+```{r}
+install.packages("ggpubr")
+library("ggpubr")
+ggdensity(data$len, main = "Density plot of tooth length", xlab = "Tooth length")
+ggqqplot(data$len) + ggtitle("QQplot")
+```
+
+### As all the points lay approximately along the reference line, we can assume normality hence we can use the two sample t-test.
+
+## Hypothesis testing
+### Testing average tooth growth overall (without looking at different dosage).Considering alpha being 5%
+#### Ho: ??_oj - ??_VC = 0
+#### Ha: ??_oj - ??_VC ??? 0
+
+```{r}
+t.test(len ~ supp, data)
+```
+
+### the 95% confidence interval does contain nill. So the Ho will be failed to be rejected. With a 5%-probability of making a error of type 1 we could say that the average tooth growth with Orange juice is equal to the average tooth growth with vitamin C.
+
+
+### Testing three different hypothesis stating for a dose of x mg/day both supplements deliver same average growth with two sample t-test considering alpha being 5%.
+
+#### For dose = 0.5 mg a day
+#### Ho: ??_oj - ??_VC = 0
+#### Ha: ??_oj - ??_VC ??? 0
+
+```{r}
+t.test(len ~ supp, data = subset(data, dose == 0.5))
+```
+
+#### the 95% confidence interval does not contain nill. So the Ho wil be rejected in favor of the Ha. With a 5%-probability of making a error of type 1 we could say that the average tooth growth due to Orange juice is significant larger than the average tooth growth due to vitamin C.
+
+
+### For dose = 1 mg a day
+#### Ho: ??_oj - ??_VC = 0
+#### Ha: ??_oj - ??_VC ??? 0
+
+```{r}
+t.test(len ~ supp, data = subset(data, dose == 1))
+```
+
+### the 95% confidence interval does not contain nill. So the Ho wil be rejected in favor of the Ha. With a 5%-probability of making a error of type 1 we could say that the average tooth growth due to Orange juice is significant larger than the average tooth growth due to vitamin C.
+
+### For dose = 2 mg a day
+#### Ho: ??_oj - ??_VC = 0
+#### Ha: ??_oj - ??_VC ??? 0
+
+```{r}
+t.test(len ~ supp, data = subset(data, dose == 2))
+```
+
+### the 95% confidence interval does contain nill. So the Ho will be failed to be rejected. With a 5%-probability of making a error of type 1 we could say that the average tooth growth due to Orange juice is equal to the average tooth growth due to vitamin C.
+
+# Conclusion:
+
+## We could state that, with smaller dosage (0.5 or 1 mg per day), Orange juice leads to a significant larger average tooth growth in comparison to vitamin C. For the larger dosage (2 mg per day) this difference can not be pointed out. We can not say that the average tooth growth is larger for Orange juice in comparison to vitamin C. Overall (despite different dosage) we can not speak of a significant larger average tooth growth due to Orange juice in comparison to vitamin C.
+
+### Assuming that:
+### * The sample data set is representative for the population dataset.
+### * Dosage and supplement were randomly assigned.
+### * The distribution of the means is actually normal distributed.
